@@ -1,0 +1,33 @@
+{
+  "name": "skf_mtusi_telegram_bot",
+  "version": "1.0.0",
+  "description": "Telegram bot for students of SKF MTUSI",
+  "main": "index.js",
+  "dependencies": {
+    "bluebird": "^3.7.2",
+    "cheerio": "^1.0.0-rc.5",
+    "mysql2": "^2.2.5",
+    "node-telegram-bot-api": "^0.50.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.7"
+  },
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vlad-gavrilov/skf_mtusi_telegram_bot.git"
+  },
+  "keywords": [
+    "telegram",
+    "bot"
+  ],
+  "author": "Vlad Gavrilov",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/vlad-gavrilov/skf_mtusi_telegram_bot/issues"
+  },
+  "homepage": "https://github.com/vlad-gavrilov/skf_mtusi_telegram_bot#readme"
+}
