@@ -6,6 +6,7 @@
   "dependencies": {
     "bluebird": "^3.7.2",
     "cheerio": "^1.0.0-rc.5",
+    "jspdf": "^2.3.1",
     "mysql2": "^2.2.5",
     "node-telegram-bot-api": "^0.50.0"
   },

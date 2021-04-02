@@ -9,6 +9,7 @@ const InlineKeyboard = require('./models/InlineKeyboard');
 const User = require('./models/User');
 const Teacher = require('./models/Teacher');
 const Logger = require('./models/Logger');
+const PDF = require('./models/PDF')
 
 bot.on('message', (msg) => {
     let message = {};
@@ -162,6 +163,10 @@ bot.onText(/Расписание звонков/, async msg => {
             keyboard: Keyboard.commands()
         }
     });
+
+    timetablePath = await PDF.getTimetable(msg.from.id);
+    await bot.sendDocument(chatId, timetablePath);
+    PDF.removeFile(timetablePath);
 });
 
 bot.onText(/Расписание занятий/, async msg => {
