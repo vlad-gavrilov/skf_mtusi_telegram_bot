@@ -65,6 +65,11 @@ class TimeHelper {
         outputString += `${TimeHelper.getWeekdayName(date.getDay())}\n`;
         return outputString;
     }
+
+    static getFormatedDayAndMonthFromDate(date) {
+        let outputString = `${date.getDate()} ${TimeHelper.getMonthName(date.getMonth())}`;
+        return outputString;
+    }
 }
 
 module.exports = TimeHelper;

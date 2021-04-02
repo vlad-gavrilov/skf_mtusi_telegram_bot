@@ -176,6 +176,10 @@ bot.onText(/Расписание занятий/, async msg => {
             inline_keyboard: InlineKeyboard.scheduleNavigation(1)
         }
     });
+
+    shedulePath = await PDF.getScheduleByDay(msg.from.id);
+    await bot.sendDocument(chatId, shedulePath);
+    PDF.removeFile(shedulePath);
 });
 
 bot.onText(/Выбрать свою группу/, msg => {

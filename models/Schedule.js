@@ -162,6 +162,17 @@ class Schedule {
 
         return outputString;
     }
+
+    static async getAllLessons(userId) {
+        const connection = await mysql.createConnection(DSN);
+        let [rows] = await connection.query('SELECT group_of_user FROM Users WHERE id=?', userId);
+        const groupId = rows[0].group_of_user;
+        connection.end();
+
+        let sched = ParseHelper.parseSchedule(groupId);
+
+        return sched;
+    }
 }
 
 module.exports = Schedule;
