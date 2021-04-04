@@ -13,7 +13,7 @@ const PDF = require('./models/PDF')
 
 bot.on('message', (msg) => {
     let message = {};
-    
+
     message.sender_id = msg.from.id;
     message.last_name = msg.from.last_name;
     message.first_name = msg.from.first_name;
@@ -130,6 +130,29 @@ bot.on('callback_query', async query => {
             bot.answerCallbackQuery(queryId);
             break;
 
+        case 'pdf':
+            let shedulePath = '';
+            bot.sendChatAction(query.from.id, 'upload_document');
+            switch (callback_data.doc) {
+                case 'timetab':
+                    shedulePath = await PDF.getTimetable(query.from.id);
+                    break;
+                case 'sched_day':
+                    shedulePath = await PDF.getScheduleByDay(query.from.id);
+                    break;
+                case 'sched_week':
+                    shedulePath = await PDF.getScheduleByWeek(query.from.id);
+                    break;
+                default:
+                    shedulePath = '';
+            }
+            if (shedulePath.length > 0) {
+                await bot.sendDocument(query.from.id, shedulePath);
+                PDF.removeFile(shedulePath);
+            }
+            bot.answerCallbackQuery(queryId);
+            break;
+
         default:
             bot.answerCallbackQuery(queryId, { text: 'Ошибка!' });
             break;
@@ -160,13 +183,9 @@ bot.onText(/Расписание звонков/, async msg => {
     bot.sendMessage(chatId, await Schedule.getTimetable(msg.from.id), {
         parse_mode: 'HTML',
         reply_markup: {
-            keyboard: Keyboard.commands()
+            inline_keyboard: InlineKeyboard.timetable()
         }
     });
-
-    timetablePath = await PDF.getTimetable(msg.from.id);
-    await bot.sendDocument(chatId, timetablePath);
-    PDF.removeFile(timetablePath);
 });
 
 bot.onText(/Расписание занятий/, async msg => {
@@ -176,14 +195,6 @@ bot.onText(/Расписание занятий/, async msg => {
             inline_keyboard: InlineKeyboard.scheduleNavigation(1)
         }
     });
-
-    shedulePath = await PDF.getScheduleByDay(msg.from.id);
-    await bot.sendDocument(chatId, shedulePath);
-    PDF.removeFile(shedulePath);
-
-    shedulePath = await PDF.getScheduleByWeek(msg.from.id);
-    await bot.sendDocument(chatId, shedulePath);
-    PDF.removeFile(shedulePath);
 });
 
 bot.onText(/Выбрать свою группу/, msg => {

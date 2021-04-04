@@ -87,6 +87,12 @@ class InlineKeyboard {
         ]
     }
 
+    static timetable() {
+        return [
+            [{ text: 'Звонки в формате PDF', callback_data: '{"type":"pdf", "doc":"timetab"}' }],
+        ]
+    }
+
     static scheduleNavigation(pageNumber) {
         let keyboard;
         const countOfSlides = 45;
@@ -171,6 +177,8 @@ class InlineKeyboard {
                 break;
         }
 
+        keyboard.push([{ text: 'PDF-файл с расписанием по дням', callback_data: '{"type":"pdf", "doc":"sched_day"}' }]);
+        keyboard.push([{ text: 'PDF-файл с расписанием по неделям', callback_data: '{"type":"pdf", "doc":"sched_week"}' }]);
 
         return keyboard;
     }
