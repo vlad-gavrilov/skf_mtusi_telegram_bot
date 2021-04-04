@@ -30,7 +30,23 @@ class TimeHelper {
         return weekdays[number];
     }
 
+    static getWeekdayNameShort(number) {
+        const weekdays = [
+            'ВС',
+            'ПН',
+            'ВТ',
+            'СР',
+            'ЧТ',
+            'ПТ',
+            'СБ',
+        ];
+        return weekdays[number];
+    }
     
+    static getNumberOfWeek(date) {
+        var firstJanuary = new Date(date.getFullYear(), 0, 1);
+        return Math.ceil((((date - firstJanuary) / 86400000) + firstJanuary.getDay() + 1) / 7);
+    }
 
     static buildStringHoursAndMinutes(date) {
         let hours = date.getHours();

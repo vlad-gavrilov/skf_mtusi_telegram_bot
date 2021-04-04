@@ -180,6 +180,10 @@ bot.onText(/Расписание занятий/, async msg => {
     shedulePath = await PDF.getScheduleByDay(msg.from.id);
     await bot.sendDocument(chatId, shedulePath);
     PDF.removeFile(shedulePath);
+
+    shedulePath = await PDF.getScheduleByWeek(msg.from.id);
+    await bot.sendDocument(chatId, shedulePath);
+    PDF.removeFile(shedulePath);
 });
 
 bot.onText(/Выбрать свою группу/, msg => {
