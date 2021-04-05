@@ -44,7 +44,7 @@ class TimeHelper {
     }
     
     static getNumberOfWeek(date) {
-        var firstJanuary = new Date(date.getFullYear(), 0, 1);
+        let firstJanuary = new Date(date.getFullYear(), 0, 1);
         return Math.ceil((((date - firstJanuary) / 86400000) + firstJanuary.getDay() + 1) / 7);
     }
 

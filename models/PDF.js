@@ -77,7 +77,7 @@ class PDF {
         let grp = await User.getGroupOfUser(userId);
         let grpLatin = GroupHelper.getGroupNameLatin(grp);
         let grpCyrillic = GroupHelper.getGroupNameCyrillic(grp);
-        let filePath = `Schedule_${grpLatin}.pdf`;
+        let filePath = `Schedule_by_day_${grpLatin}.pdf`;
 
         let schedule = await Schedule.getAllLessons(userId);
 
@@ -168,7 +168,7 @@ class PDF {
         let grp = await User.getGroupOfUser(userId);
         let grpLatin = GroupHelper.getGroupNameLatin(grp);
         let grpCyrillic = GroupHelper.getGroupNameCyrillic(grp);
-        let filePath = `Schedule_${grpLatin}.pdf`;
+        let filePath = `Schedule_by_week_${grpLatin}.pdf`;
 
         let schedule = await Schedule.getAllLessons(userId);
 
@@ -303,7 +303,11 @@ class PDF {
     }
 
     static removeFile(path) {
-        fs.rmSync(path);
+        try {
+            if (fs.existsSync(path)) fs.rmSync(path);
+        } catch (error) {
+            console.log(error);
+        }
     }
 };
 

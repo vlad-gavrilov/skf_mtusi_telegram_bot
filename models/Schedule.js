@@ -136,6 +136,40 @@ class Schedule {
         return outputString;
     }
 
+    static async getTomorrowsLessons(msg) {
+        let tomorrowDate = new Date(msg.date * 1000 + 86400000);
+        let keyOfTomorrowDate = (new Date(tomorrowDate.getFullYear(), tomorrowDate.getMonth(), tomorrowDate.getDate(), 0, 0, 0, 0)).getTime();
+
+        let outputString = TimeHelper.getFormatedStringWithWeekdayFromDate(tomorrowDate);
+
+        const connection = await mysql.createConnection(DSN);
+        let [rows] = await connection.query('SELECT group_of_user FROM Users WHERE id=?', msg.from.id);
+        const groupId = rows[0].group_of_user;
+        [rows] = await connection.query('SELECT name FROM Groups WHERE group_id=?', groupId);
+        const groupName = rows[0].name;
+        connection.end();
+
+        outputString += `Группа: ${groupName}\n`;
+
+        let sched = ParseHelper.parseSchedule(groupId);
+
+        if (sched[keyOfTomorrowDate] !== undefined) {
+            let todaysLessons = sched[keyOfTomorrowDate];
+            outputString += 'Количество занятий: ' + todaysLessons.length + '\n';
+            todaysLessons.forEach(lesson => {
+                outputString += '\n';
+                outputString += 'Пара ' + lesson.number + ': \n';
+                outputString += lesson.type[0].toUpperCase() + lesson.type.substring(1) + '\n' + lesson.title + '\n';
+                outputString += 'Преподаватель: ' + lesson.teacher + '\n'
+                outputString += 'Кабинет: ' + lesson.cabinet + '\n';
+            });
+        } else {
+            outputString += 'В этот день пар нет';
+        };
+
+        return outputString;
+    }
+
     static async getTimetable(userId) {
         let bells = await Bell.getBells(userId);
 

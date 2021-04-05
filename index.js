@@ -178,6 +178,15 @@ bot.onText(/Пары сегодня/, async msg => {
     });
 });
 
+bot.onText(/Пары завтра/, async msg => {
+    let chatId = msg.chat.id;
+    bot.sendMessage(chatId, await Schedule.getTomorrowsLessons(msg), {
+        reply_markup: {
+            keyboard: Keyboard.commands()
+        }
+    });
+});
+
 bot.onText(/Расписание звонков/, async msg => {
     let chatId = msg.chat.id;
     bot.sendMessage(chatId, await Schedule.getTimetable(msg.from.id), {
@@ -259,34 +268,34 @@ bot.onText(/\/ping/, msg => {
     });
 });
 
-bot.onText(/\/help/, msg => {
+bot.onText(/\/help/, async msg => {
     const chatId = msg.chat.id;
-    let helpMessage = `\/help - помощь\n`;
-    helpMessage += `\/start - начальное приветствие\n`;
-    helpMessage += `\/ping - отвечает "pong"\n`;
-    helpMessage += `\/photo <Фамилия> - фото указанного преподавателя\n`;
-    helpMessage += `@mtusi_bot - вход в inline-режим\n`;
+    let helpMessage = require('./data/info');
 
-    bot.sendMessage(chatId, helpMessage, {
+    await bot.sendMessage(chatId, helpMessage, {
+        parse_mode: 'HTML',
         reply_markup: {
             keyboard: Keyboard.commands()
         }
     });
+
+    await bot.sendChatAction(chatId, 'find_location');
+    await bot.sendLocation(chatId, 47.219232, 39.712478);
 });
 
-bot.onText(/Справка/, msg => {
+bot.onText(/Справка/, async msg => {
     const chatId = msg.chat.id;
-    let helpMessage = `\/help - помощь\n`;
-    helpMessage += `\/start - начальное приветствие\n`;
-    helpMessage += `\/ping - отвечает "pong"\n`;
-    helpMessage += `\/photo <Фамилия> - фото указанного преподавателя\n`;
-    helpMessage += `@mtusi_bot - вход в inline-режим\n`;
+    let helpMessage = require('./data/info');
 
-    bot.sendMessage(chatId, helpMessage, {
+    await bot.sendMessage(chatId, helpMessage, {
+        parse_mode: 'HTML',
         reply_markup: {
             keyboard: Keyboard.commands()
         }
     });
+
+    await bot.sendChatAction(chatId, 'find_location');
+    await bot.sendLocation(chatId, 47.219232, 39.712478);
 });
 
 bot.onText(/\/photo (.+)/, async (msg, match) => {
