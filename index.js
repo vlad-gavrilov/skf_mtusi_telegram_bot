@@ -9,7 +9,9 @@ const InlineKeyboard = require('./models/InlineKeyboard');
 const User = require('./models/User');
 const Teacher = require('./models/Teacher');
 const Logger = require('./models/Logger');
-const PDF = require('./models/PDF')
+const PDF = require('./models/PDF');
+
+setInterval(bot => (Schedule.updateSchedule(bot)), 60000, bot);
 
 bot.on('message', (msg) => {
     let message = {};

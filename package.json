@@ -4,6 +4,7 @@
   "description": "Telegram bot for students of SKF MTUSI",
   "main": "index.js",
   "dependencies": {
+    "axios": "^0.21.1",
     "bluebird": "^3.7.2",
     "cheerio": "^1.0.0-rc.5",
     "jspdf": "^2.3.1",

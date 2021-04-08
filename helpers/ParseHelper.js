@@ -70,8 +70,13 @@ class ParseHelper {
     }
 
     static getRawSchedule(groupId) {
-        let path = '../data/schedule' + groupId;
-        const html = require(path);
+        let html = '';
+        try {
+            let path = '../data/schedule' + groupId;
+            html = require(path);
+        } catch (error) {
+            console.log(error);
+        }
         return html;
     }
 }
