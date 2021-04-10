@@ -26,137 +26,149 @@ bot.on('message', (msg) => {
 });
 
 bot.on('inline_query', async query => {
-    let teachers = await Teacher.getAllTeachers();
-    teachers.sort((first, second) => {
-        if (first.last_name < second.last_name) return -1;
-        if (first.last_name < second.last_name) return 1;
-    });
+    try {
+        let teachers = await Teacher.getAllTeachers();
+        teachers.sort((first, second) => {
+            if (first.last_name < second.last_name) return -1;
+            if (first.last_name < second.last_name) return 1;
+        });
 
-    let results = teachers.map(teacher => {
-        return {
-            type: 'article',
-            id: teacher.id,
-            title: `${teacher.last_name} ${teacher.first_name} ${teacher.patronymic}`,
-            description: `Кафедра ${teacher.department_title}`,
-            thumb_url: `http://www.skf-mtusi.ru/images/prep/${teacher.photo_on_website}.jpg`,
-            input_message_content: {
-                message_text: `<i>${teacher.last_name} ${teacher.first_name} ${teacher.patronymic}</i>\n<a href='http://www.skf-mtusi.ru/?page_id=${teacher.id_on_website}'>Профиль преподавателя на сайте СКФ МТУСИ</a>`,
-                parse_mode: 'HTML',
-            },
-        }
-    })
+        let results = teachers.map(teacher => {
+            return {
+                type: 'article',
+                id: teacher.id,
+                title: `${teacher.last_name} ${teacher.first_name} ${teacher.patronymic}`,
+                description: `Кафедра ${teacher.department_title}`,
+                thumb_url: `http://www.skf-mtusi.ru/images/prep/${teacher.photo_on_website}.jpg`,
+                input_message_content: {
+                    message_text: `<i>${teacher.last_name} ${teacher.first_name} ${teacher.patronymic}</i>\n<a href='http://www.skf-mtusi.ru/?page_id=${teacher.id_on_website}'>Профиль преподавателя на сайте СКФ МТУСИ</a>`,
+                    parse_mode: 'HTML',
+                },
+            }
+        })
 
-    bot.answerInlineQuery(query.id, results, {
-        cache_time: 0
-    })
+        bot.answerInlineQuery(query.id, results, {
+            cache_time: 0
+        });
+    } catch (error) {
+        console.error(error);
+    }
+
 })
 
 bot.on('callback_query', async query => {
-    const queryId = query.id;
-
-    let callback_data;
     try {
-        callback_data = JSON.parse(query.data);
-    } catch (e) {
-        throw new Error('Invalid callback data');
-    }
+        const queryId = query.id;
 
-    switch (callback_data.type) {
-        case 'department':
-            let teachersKeyboard = await InlineKeyboard.teachers(callback_data.id);
-            bot.editMessageText('Выберите преподавателя:', {
-                chat_id: query.message.chat.id,
-                message_id: query.message.message_id,
-                reply_markup: { inline_keyboard: teachersKeyboard }
-            });
-            bot.answerCallbackQuery(queryId);
-            break;
+        let callback_data;
+        try {
+            callback_data = JSON.parse(query.data);
+        } catch (error) {
+            throw new Error('Invalid callback data');
+        }
 
-        case 'teacher':
-            const photoInfo = await Photo.getPhotoOfTeacherById(callback_data.id);
-            await bot.sendPhoto(query.from.id, photoInfo.stream, photoInfo.options);
-            await bot.deleteMessage(
-                query.from.id,
-                query.message.message_id
-            );
-            bot.answerCallbackQuery(queryId);
-            break;
+        switch (callback_data.type) {
+            case 'department':
+                let teachersKeyboard = await InlineKeyboard.teachers(callback_data.id);
+                bot.editMessageText('Выберите преподавателя:', {
+                    chat_id: query.message.chat.id,
+                    message_id: query.message.message_id,
+                    reply_markup: { inline_keyboard: teachersKeyboard }
+                });
+                bot.answerCallbackQuery(queryId);
+                break;
 
-        case 'group':
-            let userId = query.from.id;
-            let groupId = callback_data.id;
-            await User.changeGroup(userId, groupId);
-            bot.answerCallbackQuery(queryId, { text: `Ваша группа изменена на ${callback_data.grp}` });
-            break;
+            case 'teacher':
+                const photoInfo = await Photo.getPhotoOfTeacherById(callback_data.id);
+                await bot.sendPhoto(query.from.id, photoInfo.stream, photoInfo.options);
+                await bot.deleteMessage(
+                    query.from.id,
+                    query.message.message_id
+                );
+                bot.answerCallbackQuery(queryId);
+                break;
 
-        case 'other_teacher':
-            let otherTeachersKeyboard = await InlineKeyboard.teachers(callback_data.teachersDepartment);
-            await bot.sendMessage(query.message.chat.id, 'Выберите преподавателя:', {
-                reply_markup: { inline_keyboard: otherTeachersKeyboard }
-            });
-            await bot.deleteMessage(
-                query.message.chat.id,
-                query.message.message_id
-            );
-            bot.answerCallbackQuery(queryId);
-            break;
+            case 'group':
+                let userId = query.from.id;
+                let groupId = callback_data.id;
+                await User.changeGroup(userId, groupId);
+                bot.answerCallbackQuery(queryId, { text: `Ваша группа изменена на ${callback_data.grp}` });
+                break;
 
-        case 'other_department':
-            let departmentsKeyboard = await InlineKeyboard.departments();
+            case 'other_teacher':
+                let otherTeachersKeyboard = await InlineKeyboard.teachers(callback_data.teachersDepartment);
+                await bot.sendMessage(query.message.chat.id, 'Выберите преподавателя:', {
+                    reply_markup: { inline_keyboard: otherTeachersKeyboard }
+                });
+                await bot.deleteMessage(
+                    query.message.chat.id,
+                    query.message.message_id
+                );
+                bot.answerCallbackQuery(queryId);
+                break;
 
-            bot.editMessageText('Выберите кафедру преподавателя:', {
-                chat_id: query.message.chat.id,
-                message_id: query.message.message_id,
-                reply_markup: { inline_keyboard: departmentsKeyboard }
-            });
-            bot.answerCallbackQuery(queryId);
-            break;
+            case 'other_department':
+                let departmentsKeyboard = await InlineKeyboard.departments();
 
-        case 'nav':
-            let queryData = {};
-            queryData.date = (Date.now() / 1000) + (callback_data.number - 1) * 86400;
-            queryData.from = {};
-            queryData.from.id = query.message.chat.id;
+                bot.editMessageText('Выберите кафедру преподавателя:', {
+                    chat_id: query.message.chat.id,
+                    message_id: query.message.message_id,
+                    reply_markup: { inline_keyboard: departmentsKeyboard }
+                });
+                bot.answerCallbackQuery(queryId);
+                break;
 
-            bot.editMessageText(await Schedule.getTodaysLessons(queryData), {
-                chat_id: query.message.chat.id,
-                message_id: query.message.message_id,
-                reply_markup: {
-                    inline_keyboard: InlineKeyboard.scheduleNavigation(Number(callback_data.number))
+            case 'nav':
+                let queryData = {};
+                queryData.date = (Date.now() / 1000) + (callback_data.number - 1) * 86400;
+                queryData.from = {};
+                queryData.from.id = query.message.chat.id;
+
+                bot.editMessageText(await Schedule.getTodaysLessons(queryData), {
+                    chat_id: query.message.chat.id,
+                    message_id: query.message.message_id,
+                    reply_markup: {
+                        inline_keyboard: InlineKeyboard.scheduleNavigation(Number(callback_data.number))
+                    }
+                }).then(null, error => {
+                    console.error('Can\'t send the same message.')
+                });
+                bot.answerCallbackQuery(queryId);
+                break;
+
+            case 'pdf':
+                let shedulePath = '';
+                bot.sendChatAction(query.from.id, 'upload_document');
+                switch (callback_data.doc) {
+                    case 'timetab':
+                        shedulePath = await PDF.getTimetable(query.from.id);
+                        break;
+                    case 'sched_day':
+                        shedulePath = await PDF.getScheduleByDay(query.from.id);
+                        break;
+                    case 'sched_week':
+                        shedulePath = await PDF.getScheduleByWeek(query.from.id);
+                        break;
+                    default:
+                        shedulePath = '';
                 }
-            }).then(null, error => {
-                console.error('Can\'t send the same message.')
-            });
-            bot.answerCallbackQuery(queryId);
-            break;
+                if (shedulePath.length > 0) {
+                    await bot.sendDocument(query.from.id, shedulePath);
+                    PDF.removeFile(shedulePath);
+                }
+                bot.answerCallbackQuery(queryId);
+                break;
 
-        case 'pdf':
-            let shedulePath = '';
-            bot.sendChatAction(query.from.id, 'upload_document');
-            switch (callback_data.doc) {
-                case 'timetab':
-                    shedulePath = await PDF.getTimetable(query.from.id);
-                    break;
-                case 'sched_day':
-                    shedulePath = await PDF.getScheduleByDay(query.from.id);
-                    break;
-                case 'sched_week':
-                    shedulePath = await PDF.getScheduleByWeek(query.from.id);
-                    break;
-                default:
-                    shedulePath = '';
-            }
-            if (shedulePath.length > 0) {
-                await bot.sendDocument(query.from.id, shedulePath);
-                PDF.removeFile(shedulePath);
-            }
-            bot.answerCallbackQuery(queryId);
-            break;
+            default:
+                bot.answerCallbackQuery(queryId, { text: 'Ошибка!' });
+                break;
+        }
 
-        default:
-            bot.answerCallbackQuery(queryId, { text: 'Ошибка!' });
-            break;
+
+    } catch (error) {
+        console.error(error);
     }
+
 });
 
 
@@ -226,7 +238,6 @@ bot.onText(/Преподаватели/, async msg => {
         }
     });
 });
-
 
 bot.onText(/\/start/, async msg => {
     let chatId = msg.chat.id;

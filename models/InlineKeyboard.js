@@ -5,21 +5,25 @@ class InlineKeyboard {
     static async departments() {
         let departments = [];
 
-        const connection = await mysql.createConnection(DSN);
-        const [rows, fields] = await connection.execute('SELECT * FROM Departments');
-        connection.end();
+        try {
+            const connection = await mysql.createConnection(DSN);
+            const [rows, fields] = await connection.execute('SELECT * FROM Departments');
+            connection.end();
 
-        rows.forEach(row => {
-            let departmentCapitalized = row.department_title.charAt(0).toUpperCase() + row.department_title.slice(1);
-            departments.push(
-                [
-                    {
-                        text: `${departmentCapitalized}`,
-                        callback_data: `{"type":"department", "id":"${row.department_id}"}`
-                    }
-                ]
-            );
-        });
+            rows.forEach(row => {
+                let departmentCapitalized = row.department_title.charAt(0).toUpperCase() + row.department_title.slice(1);
+                departments.push(
+                    [
+                        {
+                            text: `${departmentCapitalized}`,
+                            callback_data: `{"type":"department", "id":"${row.department_id}"}`
+                        }
+                    ]
+                );
+            });
+        } catch (error) {
+            console.error(error);
+        }
 
         return departments;
     }
@@ -27,29 +31,33 @@ class InlineKeyboard {
     static async teachers(departmentId) {
         let teachers = [];
 
-        const connection = await mysql.createConnection(DSN);
-        const [rows, fields] = await connection.query('SELECT id, last_name, first_name, patronymic FROM Teachers WHERE department=?', departmentId);
-        connection.end();
+        try {
+            const connection = await mysql.createConnection(DSN);
+            const [rows, fields] = await connection.query('SELECT id, last_name, first_name, patronymic FROM Teachers WHERE department=?', departmentId);
+            connection.end();
 
-        rows.forEach(row => {
+            rows.forEach(row => {
+                teachers.push(
+                    [
+                        {
+                            text: `${row.last_name} ${row.first_name} ${row.patronymic}`,
+                            callback_data: `{"type":"teacher", "id":"${row.id}"}`
+                        }
+                    ]
+                );
+            });
+
             teachers.push(
                 [
                     {
-                        text: `${row.last_name} ${row.first_name} ${row.patronymic}`,
-                        callback_data: `{"type":"teacher", "id":"${row.id}"}`
+                        text: '« Выбрать другую кафедру',
+                        callback_data: '{"type":"other_department"}'
                     }
                 ]
             );
-        });
-
-        teachers.push(
-            [
-                {
-                    text: '« Выбрать другую кафедру',
-                    callback_data: '{"type":"other_department"}'
-                }
-            ]
-        );
+        } catch (error) {
+            console.error(error);
+        }
 
         return teachers;
     }

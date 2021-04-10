@@ -1,3 +1,4 @@
+const path = require('path');
 const Teacher = require('./Teacher');
 const InlineKeboard = require('./InlineKeyboard');
 const fs = require('fs');
@@ -9,10 +10,20 @@ class Photo {
         let teacherInfo = await Teacher.getTeacherInfoById(teacherId);
         let photoInfo = {};
 
-        if (teacherInfo.id_on_website == undefined || teacherInfo.id_on_website == null) {
-            photoInfo.stream = fs.createReadStream(`./photos/no_photo.jpg`);
+        let filePath = '';
+
+        if (teacherInfo.id_on_website) {
+            filePath = path.join(__dirname, `../photos/${teacherInfo.id_on_website}.jpg`);
+            try {
+                fs.accessSync(filePath, fs.constants.R_OK);
+                photoInfo.stream = fs.createReadStream(filePath);
+            } catch {
+                filePath = path.join(__dirname, '../photos/no_photo.jpg');
+                photoInfo.stream = fs.createReadStream(filePath);
+            }
         } else {
-            photoInfo.stream = fs.createReadStream(`./photos/${teacherInfo.id_on_website}.jpg`);
+            filePath = path.join(__dirname, '../photos/no_photo.jpg');
+            photoInfo.stream = fs.createReadStream(filePath);
         }
 
         photoInfo.options = {
@@ -34,10 +45,20 @@ class Photo {
         let arrayOfPhotoInfos = teacherInfo.map(row => {
             let photoInfo = {};
 
-            if (row.id_on_website == undefined || row.id_on_website == null) {
-                photoInfo.stream = fs.createReadStream(`./photos/no_photo.jpg`);
+            let filePath = '';
+
+            if (row.id_on_website) {
+                filePath = path.join(__dirname, `../photos/${row.id_on_website}.jpg`);
+                try {
+                    fs.accessSync(filePath, fs.constants.R_OK);
+                    photoInfo.stream = fs.createReadStream(filePath);
+                } catch {
+                    filePath = path.join(__dirname, '../photos/no_photo.jpg');
+                    photoInfo.stream = fs.createReadStream(filePath);
+                }
             } else {
-                photoInfo.stream = fs.createReadStream(`./photos/${row.id_on_website}.jpg`);
+                filePath = path.join(__dirname, '../photos/no_photo.jpg');
+                photoInfo.stream = fs.createReadStream(filePath);
             }
 
             photoInfo.options = {
@@ -48,7 +69,7 @@ class Photo {
                 }
             }
 
-            return(photoInfo);
+            return (photoInfo);
         });
 
         return arrayOfPhotoInfos;

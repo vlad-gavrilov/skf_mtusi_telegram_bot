@@ -6,7 +6,6 @@ const GroupHelper = require('../helpers/GroupHelper');
 const User = require('./User');
 const Bell = require('./Bell');
 const Schedule = require('./Schedule');
-const ParseHelper = require('../helpers/ParseHelper');
 
 class PDF {
     static async getTimetable(userId) {

@@ -1,6 +1,3 @@
-const mysql = require('mysql2/promise');
-const DSN = require('../keys/database');
-
 class Keyboard {
     static commands() {
         return [
