@@ -22,7 +22,6 @@ class Schedule {
                 });
             });
             const currentDate = new Date(msg.date * 1000);
-            // const currentDate = new Date(2020, 10, 20, 15, 30, 23, 432);
 
             outputString = TimeHelper.getFormatedStringFromDate(currentDate);
 
@@ -34,12 +33,12 @@ class Schedule {
                 if (Object.keys(lesson).length == 0) {
                     return 'В текущее время занятий нет';
                 } else {
-                    outputString += '\n';
-                    outputString += 'Пара ' + lesson.number + ': \n';
-                    outputString += lesson.type[0].toUpperCase() + lesson.type.substring(1) + '\n' + lesson.title + '\n';
-                    outputString += 'Преподаватель: ' + lesson.teacher + '\n'
-                    outputString += 'Кабинет: ' + lesson.cabinet + '\n';
-                    return outputString;
+                    let lessonFormated = '\n';
+                    lessonFormated += 'Пара ' + lesson.number + ': \n';
+                    lessonFormated += lesson.type[0].toUpperCase() + lesson.type.substring(1) + '\n' + lesson.title + '\n';
+                    lessonFormated += 'Преподаватель: ' + lesson.teacher + '\n'
+                    lessonFormated += 'Кабинет: ' + lesson.cabinet + '\n';
+                    return lessonFormated;
                 }
             }
 
@@ -111,7 +110,6 @@ class Schedule {
 
         try {
             let currentDate = new Date(msg.date * 1000);
-            // let currentDate = new Date(2020, 10, 17, 15, 34, 52);
             let keyOfCurrentDate = (new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate(), 0, 0, 0, 0)).getTime();
 
             outputString = TimeHelper.getFormatedStringWithWeekdayFromDate(currentDate);
