@@ -9,7 +9,8 @@
     "jspdf": "^2.3.1",
     "jspdf-autotable": "^3.5.14",
     "mysql2": "^2.2.5",
-    "node-telegram-bot-api": "^0.50.0"
+    "node-telegram-bot-api": "^0.50.0",
+    "sanitize-html": "^2.4.0"
   },
   "devDependencies": {
     "nodemon": "^2.0.7"

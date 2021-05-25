@@ -12,16 +12,7 @@ const Logger = require('./models/Logger');
 const PDF = require('./models/PDF')
 
 bot.on('message', (msg) => {
-    let message = {};
-
-    message.sender_id = msg.from.id;
-    message.last_name = msg.from.last_name;
-    message.first_name = msg.from.first_name;
-    message.username = msg.from.username;
-    message.date = msg.date;
-    message.date_string = new Date(msg.date * 1000);
-    message.text = msg.text;
-
+    let message = Logger.prepareMessage(msg, "message");
     Logger.logMessage(message);
 });
 
@@ -57,6 +48,9 @@ bot.on('inline_query', async query => {
 })
 
 bot.on('callback_query', async query => {
+    let message = Logger.prepareMessage(query, "callback");
+    Logger.logMessage(message);
+
     try {
         const queryId = query.id;
 
