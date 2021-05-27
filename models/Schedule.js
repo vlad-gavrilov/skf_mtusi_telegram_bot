@@ -3,6 +3,7 @@ const ParseHelper = require('./../helpers/ParseHelper');
 const Bell = require('./Bell');
 const mysql = require('mysql2/promise');
 const DSN = require('../keys/database');
+const { logError } = require('../models/Logger');
 
 class Schedule {
     static async getNow(msg) {
@@ -100,7 +101,7 @@ class Schedule {
 
             }
         } catch (error) {
-            console.error(error);
+            logError(error);
         }
         return outputString;
     }
@@ -140,7 +141,7 @@ class Schedule {
             };
 
         } catch (error) {
-            console.error(error);
+            logError(error);
         }
 
         return outputString;
@@ -180,7 +181,7 @@ class Schedule {
                 outputString += 'В этот день пар нет';
             };
         } catch (error) {
-            console.error(error);
+            logError(error);
         }
 
         return outputString;
@@ -223,7 +224,7 @@ class Schedule {
             connection.end();
             sched = ParseHelper.parseSchedule(groupId);
         } catch (error) {
-            console.error(error);
+            logError(error);
         }
 
         return sched;

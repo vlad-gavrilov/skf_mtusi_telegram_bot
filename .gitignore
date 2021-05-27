@@ -2,3 +2,5 @@ node_modules/
 photos/
 data/schedule*
 todo
+.env
+errors.txt

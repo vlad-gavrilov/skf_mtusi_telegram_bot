@@ -1,5 +1,6 @@
 const mysql = require('mysql2/promise');
 const DSN = require('../keys/database');
+const { logError } = require('../models/Logger');
 
 class Teacher {
     static async getTeacherInfoById(teacherId) {
@@ -10,7 +11,7 @@ class Teacher {
             connection.end();
             info = rows[0];
         } catch (error) {
-            console.error(error);
+            logError(error);
         }
         return info;
     }
@@ -23,7 +24,7 @@ class Teacher {
             connection.end();
             info = rows;
         } catch (error) {
-            console.error(error);
+            logError(error);
         }
         return info;
     }
@@ -36,7 +37,7 @@ class Teacher {
             connection.end();
             teachers = rows;
         } catch (error) {
-            console.error(error);
+            logError(error);
         }
         return teachers;
     }

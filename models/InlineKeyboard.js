@@ -1,5 +1,6 @@
 const mysql = require('mysql2/promise');
 const DSN = require('../keys/database');
+const { logError } = require('../models/Logger');
 
 class InlineKeyboard {
     static async departments() {
@@ -22,7 +23,7 @@ class InlineKeyboard {
                 );
             });
         } catch (error) {
-            console.error(error);
+            logError(error);
         }
 
         return departments;
@@ -56,7 +57,7 @@ class InlineKeyboard {
                 ]
             );
         } catch (error) {
-            console.error(error);
+            logError(error);
         }
 
         return teachers;

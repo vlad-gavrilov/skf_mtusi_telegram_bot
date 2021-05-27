@@ -1,5 +1,6 @@
 const mysql = require('mysql2/promise');
 const DSN = require('../keys/database');
+const { logError } = require('../models/Logger');
 
 class Bell {
     static async getBells(userId) {
@@ -22,7 +23,7 @@ class Bell {
                 ];
             });
         } catch (error) {
-            console.error(error);
+            logError(error);
         }
 
         return bells;

@@ -6,6 +6,7 @@ const GroupHelper = require('../helpers/GroupHelper');
 const User = require('./User');
 const Bell = require('./Bell');
 const Schedule = require('./Schedule');
+const { logError } = require('../models/Logger');
 
 class PDF {
     static async getTimetable(userId) {
@@ -305,7 +306,7 @@ class PDF {
         try {
             if (fs.existsSync(path)) fs.rmSync(path);
         } catch (error) {
-            console.log(error);
+            logError(error);
         }
     }
 };

@@ -6,6 +6,7 @@
   "dependencies": {
     "bluebird": "^3.7.2",
     "cheerio": "^1.0.0-rc.5",
+    "dotenv": "^10.0.0",
     "jspdf": "^2.3.1",
     "jspdf-autotable": "^3.5.14",
     "mysql2": "^2.2.5",

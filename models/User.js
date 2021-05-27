@@ -1,5 +1,6 @@
 const mysql = require('mysql2/promise');
 const DSN = require('../keys/database');
+const { logError } = require('../models/Logger');
 
 class User {
     static async createNewUser(newUserInfo) {
@@ -19,7 +20,7 @@ class User {
             }
             connection.end();
         } catch (error) {
-            console.error(error);
+            logError(error);
         }
     }
 
@@ -29,7 +30,7 @@ class User {
             await connection.query('UPDATE Users SET group_of_user = ? WHERE id = ?', [groupId, userId]);
             connection.end();
         } catch (error) {
-            console.error(error);
+            logError(error);
         }
     }
 
@@ -42,7 +43,7 @@ class User {
             connection.end();
             group = rows[0].group_of_user
         } catch (error) {
-            console.error(error);
+            logError(error);
         }
 
         return group;
