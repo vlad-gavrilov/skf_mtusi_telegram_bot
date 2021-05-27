@@ -79,12 +79,14 @@ if (result.error) {
 
                 case 'teacher':
                     const photoInfo = await Photo.getPhotoOfTeacherById(callback_data.id);
-                    await bot.sendPhoto(query.from.id, photoInfo.stream, photoInfo.options);
-                    await bot.deleteMessage(
-                        query.from.id,
-                        query.message.message_id
-                    );
-                    bot.answerCallbackQuery(queryId);
+                    bot.sendPhoto(query.from.id, photoInfo.stream, photoInfo.options).then(() => {
+                        bot.deleteMessage(
+                            query.from.id,
+                            query.message.message_id
+                        ).then(() => {
+                            bot.answerCallbackQuery(queryId);
+                        });
+                    });
                     break;
 
                 case 'group':
@@ -96,14 +98,16 @@ if (result.error) {
 
                 case 'other_teacher':
                     let otherTeachersKeyboard = await InlineKeyboard.teachers(callback_data.teachersDepartment);
-                    await bot.sendMessage(query.message.chat.id, 'Выберите преподавателя:', {
+                    bot.sendMessage(query.message.chat.id, 'Выберите преподавателя:', {
                         reply_markup: { inline_keyboard: otherTeachersKeyboard }
+                    }).then(() => {
+                        bot.deleteMessage(
+                            query.message.chat.id,
+                            query.message.message_id
+                        ).then(() => {
+                            bot.answerCallbackQuery(queryId);
+                        });
                     });
-                    await bot.deleteMessage(
-                        query.message.chat.id,
-                        query.message.message_id
-                    );
-                    bot.answerCallbackQuery(queryId);
                     break;
 
                 case 'other_department':
@@ -152,8 +156,9 @@ if (result.error) {
                             shedulePath = '';
                     }
                     if (shedulePath.length > 0) {
-                        await bot.sendDocument(query.from.id, shedulePath);
-                        PDF.removeFile(shedulePath);
+                        bot.sendDocument(query.from.id, shedulePath).then(() => {
+                            PDF.removeFile(shedulePath);
+                        });
                     }
                     bot.answerCallbackQuery(queryId);
                     break;
@@ -244,27 +249,27 @@ if (result.error) {
         const username = msg.from.username ? `, <b>${msg.from.username}</b>` : '';
         greetingContent += username + '!';
 
-        await bot.sendMessage(chatId, greetingContent, {
+        bot.sendMessage(chatId, greetingContent, {
             reply_markup: {
                 keyboard: Keyboard.commands()
             },
             parse_mode: 'HTML'
-        });
+        }).then(() => {
+            let newUserInfo = {
+                id: msg.chat.id,
+                last_name: msg.chat.last_name,
+                first_name: msg.chat.first_name,
+                username: msg.chat.username,
+                date: msg.date
+            };
 
-        let newUserInfo = {
-            id: msg.chat.id,
-            last_name: msg.chat.last_name,
-            first_name: msg.chat.first_name,
-            username: msg.chat.username,
-            date: msg.date
-        };
-
-        await User.createNewUser(newUserInfo);
-
-        await bot.sendMessage(chatId, 'Пожалуйста, выберите свою группу:', {
-            reply_markup: {
-                inline_keyboard: InlineKeyboard.groups(chatId)
-            }
+            User.createNewUser(newUserInfo).then(() => {
+                bot.sendMessage(chatId, 'Пожалуйста, выберите свою группу:', {
+                    reply_markup: {
+                        inline_keyboard: InlineKeyboard.groups(chatId)
+                    }
+                });
+            });
         });
     });
 
@@ -281,30 +286,30 @@ if (result.error) {
         const chatId = msg.chat.id;
         let helpMessage = require('./data/info');
 
-        await bot.sendMessage(chatId, helpMessage, {
+        bot.sendMessage(chatId, helpMessage, {
             parse_mode: 'HTML',
             reply_markup: {
                 keyboard: Keyboard.commands()
             }
+        }).then(() => {
+            bot.sendChatAction(chatId, 'find_location');
+            bot.sendLocation(chatId, 47.219232, 39.712478);
         });
-
-        await bot.sendChatAction(chatId, 'find_location');
-        await bot.sendLocation(chatId, 47.219232, 39.712478);
     });
 
     bot.onText(/Справка/, async msg => {
         const chatId = msg.chat.id;
         let helpMessage = require('./data/info');
 
-        await bot.sendMessage(chatId, helpMessage, {
+        bot.sendMessage(chatId, helpMessage, {
             parse_mode: 'HTML',
             reply_markup: {
                 keyboard: Keyboard.commands()
             }
+        }).then(() => {
+            bot.sendChatAction(chatId, 'find_location');
+            bot.sendLocation(chatId, 47.219232, 39.712478);
         });
-
-        await bot.sendChatAction(chatId, 'find_location');
-        await bot.sendLocation(chatId, 47.219232, 39.712478);
     });
 
     bot.onText(/\/photo (.+)/, async (msg, match) => {
