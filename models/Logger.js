@@ -10,7 +10,7 @@ class Logger {
             const filePath = path.join(__dirname, '../errors.txt');
             try {
                 const errorMessage = error.message ?? JSON.stringify(error);
-                const errorData = new Date(Date.now()) + '\n' + errorMessage + '\n';
+                const errorData = new Date(Date.now()) + '\n' + errorMessage + '\n\n';
                 await fs.appendFile(filePath, errorData);
             } catch {
                 console.error('Can\'t write error message to the log file');

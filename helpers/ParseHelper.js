@@ -1,4 +1,5 @@
-const cheerio = require('cheerio')
+const cheerio = require('cheerio');
+const { logError } = require('../models/Logger');
 
 class ParseHelper {
     static parseSchedule(groupId) {
@@ -70,8 +71,14 @@ class ParseHelper {
     }
 
     static getRawSchedule(groupId) {
-        let path = '../data/schedule' + groupId;
-        const html = require(path);
+        let html = '';
+        try {
+            let path = '../data/schedule' + groupId;
+            delete require.cache[require.resolve(path)];
+            html = require(path);
+        } catch (error) {
+            logError(error);
+        }
         return html;
     }
 }

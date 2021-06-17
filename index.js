@@ -14,7 +14,13 @@ if (result.error) {
     const User = require('./models/User');
     const Teacher = require('./models/Teacher');
     const MessageHandler = require('./models/MessageHandler');
-    const PDF = require('./models/PDF')
+    const PDF = require('./models/PDF');
+
+    try {
+        setInterval(bot => (Schedule.updateSchedule(bot)), 60000, bot);
+    } catch (error) {
+        logError(error);
+    }
 
     bot.on('message', (msg) => {
         let message = MessageHandler.prepareMessage(msg, "message");

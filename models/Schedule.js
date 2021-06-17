@@ -1,6 +1,10 @@
-const TimeHelper = require('../helpers/TimeHelper');
+const TimeHelper = require('./../helpers/TimeHelper');
 const ParseHelper = require('./../helpers/ParseHelper');
+const { getGroupIDs } = require('./../helpers/GroupHelper');
 const Bell = require('./Bell');
+const Request = require('./Request');
+const { writeFileSync, accessSync, constants } = require('fs');
+const path = require('path');
 const mysql = require('mysql2/promise');
 const DSN = require('../keys/database');
 const { logError } = require('../models/Logger');
@@ -228,6 +232,36 @@ class Schedule {
         }
 
         return sched;
+    }
+
+    static async updateSchedule(bot) {
+        try {
+            let groups = await getGroupIDs();
+            groups.forEach(async group => {
+                let groupId = group.group_id;
+                let filePath = path.join(__dirname, `../data/schedule${groupId}.js`);
+                try {
+                    accessSync(filePath, constants.R_OK | constants.W_OK);
+                } catch (error) {
+                    if (error.code !== 'ENOENT') throw error;
+                    writeFileSync(filePath, Schedule.wrapRawSchedule(''));
+                }
+                const newSchedule = await Request.getScheduleFromSite(groupId);
+                if (newSchedule.length > 1000) {
+                    let oldSchedule = require(`../data/schedule${groupId}.js`);
+                    if (newSchedule != oldSchedule) {
+                        writeFileSync(filePath, Schedule.wrapRawSchedule(newSchedule));
+                        // TODO send a change notification
+                    }
+                }
+            });
+        } catch (error) {
+            logError(error);
+        }
+    }
+
+    static wrapRawSchedule(rawSchedule) {
+        return `module.exports = "${rawSchedule}";`;
     }
 }
 
