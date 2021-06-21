@@ -1,3 +1,3 @@
 module.exports = {
-    TOKEN: process.env.TG_TOKEN,
-}
+  TOKEN: process.env.TG_TOKEN,
+};
