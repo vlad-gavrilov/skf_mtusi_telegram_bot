@@ -15,10 +15,10 @@ class Bell {
       bells = require('../data/bells')[groupId];
 
       bells = bells.map((value) => [
-        new Date(1970, 0, 1, value[0], value[1], 0, 0),
-        new Date(1970, 0, 1, value[0], value[1] + 45, 0, 0),
-        new Date(1970, 0, 1, value[0], value[1] + 50, 0, 0),
-        new Date(1970, 0, 1, value[0], value[1] + 95, 0, 0),
+        new Date(1970, 0, 1, +value[0], +value[1], 0, 0),
+        new Date(1970, 0, 1, +value[0], +value[1] + 45, 0, 0),
+        new Date(1970, 0, 1, +value[0], +value[1] + 50, 0, 0),
+        new Date(1970, 0, 1, +value[0], +value[1] + 95, 0, 0),
       ]);
     } catch (error) {
       logError(error);
