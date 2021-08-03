@@ -157,8 +157,8 @@ bot.on('callback_query', async (query) => {
             shedulePath = '';
         }
         if (shedulePath.length > 0) {
-          bot.sendDocument(query.from.id, shedulePath).then(() => {
-            PDF.removeFile(shedulePath);
+          bot.sendDocument(query.from.id, shedulePath).then(async () => {
+            await PDF.removeFile(shedulePath);
           });
         }
         bot.answerCallbackQuery(queryId);

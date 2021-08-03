@@ -1,5 +1,6 @@
-const fs = require('fs');
-const { jsPDF } = require('jspdf');
+const fs = require('fs/promises');
+const path = require('path');
+const JsPDF = require('jspdf').jsPDF;
 const { autoTable } = require('jspdf-autotable');
 const TimeHelper = require('../helpers/TimeHelper');
 const GroupHelper = require('../helpers/GroupHelper');
@@ -15,12 +16,8 @@ class PDF {
     const grpCyrillic = GroupHelper.getGroupNameCyrillic(grp);
     const filePath = `Timetable_${grpLatin}.pdf`;
 
-    const doc = new jsPDF();
-
-    const myFont = require('../data/font');
-    doc.addFileToVFS('MyFont.ttf', myFont);
-    doc.addFont('MyFont.ttf', 'MyFont', 'normal');
-    doc.setFont('MyFont');
+    const doc = new JsPDF();
+    await PDF.initFont(doc);
 
     const heightOfRow = 7;
     doc.text('СЕВЕРО-КАВКАЗСКИЙ ФИЛИАЛ', 20, 20);
@@ -81,12 +78,8 @@ class PDF {
 
     const schedule = await Schedule.getAllLessons(userId);
 
-    const doc = new jsPDF();
-
-    const myFont = require('../data/font');
-    doc.addFileToVFS('MyFont.ttf', myFont);
-    doc.addFont('MyFont.ttf', 'MyFont', 'normal');
-    doc.setFont('MyFont');
+    const doc = new JsPDF();
+    await PDF.initFont(doc);
 
     doc.setFontSize(16);
 
@@ -97,10 +90,10 @@ class PDF {
     doc.text(`Группа ${grpCyrillic}`, 20, 20 + heightOfRow * 4);
     doc.text('Расписание занятий', 20, 20 + heightOfRow * 6);
 
-    let firstLessonDate = null; let
-      lastLessonDate = null;
+    let firstLessonDate = null;
+    let lastLessonDate = null;
 
-    for (const key in schedule) {
+    Object.keys(schedule).forEach((key) => {
       if (!isNaN(key)) {
         if (!firstLessonDate) firstLessonDate = key;
         lastLessonDate = key;
@@ -145,7 +138,7 @@ class PDF {
         outputString = `${TimeHelper.buildStringHoursAndMinutesAndSeconds(generationDate)} `;
         doc.text(`Время создания: ${outputString}`, 14, 285);
       }
-    }
+    });
 
     doc.setFontSize(16);
     doc.setPage(1);
@@ -172,12 +165,8 @@ class PDF {
 
     const schedule = await Schedule.getAllLessons(userId);
 
-    const doc = new jsPDF();
-
-    const myFont = require('../data/font');
-    doc.addFileToVFS('MyFont.ttf', myFont);
-    doc.addFont('MyFont.ttf', 'MyFont', 'normal');
-    doc.setFont('MyFont');
+    const doc = new JsPDF();
+    await PDF.initFont(doc);
 
     doc.setFontSize(16);
 
@@ -188,13 +177,13 @@ class PDF {
     doc.text(`Группа ${grpCyrillic}`, 20, 20 + heightOfRow * 4);
     doc.text('Расписание занятий', 20, 20 + heightOfRow * 6);
 
-    let firstLessonDate = null; let
-      lastLessonDate = null;
+    let firstLessonDate = null;
+    let lastLessonDate = null;
 
     let body = [];
     let numberOfWeek = null;
 
-    for (const key in schedule) {
+    Object.keys(schedule).forEach((key) => {
       if (!isNaN(key)) {
         if (!firstLessonDate) firstLessonDate = key;
         lastLessonDate = key;
@@ -252,7 +241,7 @@ class PDF {
           );
         });
       }
-    }
+    });
 
     doc.addPage();
     doc.setFontSize(16);
@@ -302,12 +291,20 @@ class PDF {
     return filePath;
   }
 
-  static removeFile(path) {
+  static async removeFile(pathToFile) {
     try {
-      if (fs.existsSync(path)) fs.rmSync(path);
+      await fs.rm(pathToFile, { force: true });
     } catch (error) {
       logError(error);
     }
+  }
+
+  static async initFont(doc) {
+    const fontPath = path.join(__dirname, '../data/Roboto-Regular.ttf');
+    const myFont = await fs.readFile(fontPath, 'base64');
+    doc.addFileToVFS('MyFont.ttf', myFont);
+    doc.addFont('MyFont.ttf', 'MyFont', 'normal');
+    doc.setFont('MyFont');
   }
 }
 
