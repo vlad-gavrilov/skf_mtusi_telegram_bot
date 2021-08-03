@@ -14,7 +14,7 @@ const PDF = require('./models/PDF');
 const { logError } = require('./models/Logger');
 
 try {
-  setInterval(Schedule.updateSchedule, 60000);
+  setInterval(Schedule.updateSchedule, process.env.POLLING_FREQ);
 } catch (error) {
   logError(error);
 }
