@@ -1,4 +1,6 @@
 const TelegramBot = require('node-telegram-bot-api');
+const fs = require('fs/promises');
+const path = require('path');
 const keys = require('./keys/keys');
 
 const bot = new TelegramBot(keys.TOKEN, { polling: true });
@@ -14,7 +16,7 @@ const PDF = require('./models/PDF');
 const { logError } = require('./models/Logger');
 
 try {
-  setInterval(Schedule.updateSchedule, process.env.POLLING_FREQ);
+  setInterval(Schedule.updateSchedule, process.env.POLLING_TIMEOUT);
 } catch (error) {
   logError(error);
 }
@@ -283,7 +285,7 @@ bot.onText(/\/ping/, (msg) => {
 
 bot.onText(/\/help/, async (msg) => {
   const chatId = msg.chat.id;
-  const helpMessage = require('./data/info');
+  const helpMessage = await fs.readFile(path.join(__dirname, '/data/info.txt'), 'utf-8');
 
   bot.sendMessage(chatId, helpMessage, {
     parse_mode: 'HTML',
@@ -298,7 +300,7 @@ bot.onText(/\/help/, async (msg) => {
 
 bot.onText(/Справка/, async (msg) => {
   const chatId = msg.chat.id;
-  const helpMessage = require('./data/info');
+  const helpMessage = await fs.readFile(path.join(__dirname, '/data/info.txt'), 'utf-8');
 
   bot.sendMessage(chatId, helpMessage, {
     parse_mode: 'HTML',

@@ -9,7 +9,7 @@ class Teacher {
       const connection = await mysql.createConnection(DSN);
       const [rows] = await connection.query('SELECT * FROM Teachers WHERE id=?', teacherId);
       connection.end();
-      info = rows[0];
+      [info] = rows;
     } catch (error) {
       logError(error);
     }

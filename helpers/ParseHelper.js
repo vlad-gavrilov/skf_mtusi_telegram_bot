@@ -1,9 +1,11 @@
 const cheerio = require('cheerio');
+const fs = require('fs/promises');
+const path = require('path');
 const { logError } = require('../models/Logger');
 
 class ParseHelper {
-  static parseSchedule(groupId) {
-    const html = ParseHelper.getRawSchedule(groupId);
+  static async parseSchedule(groupId) {
+    const html = await ParseHelper.getRawSchedule(groupId);
     const $ = cheerio.load(html);
     const parsedSchedule = {};
 
@@ -79,12 +81,11 @@ class ParseHelper {
     return lesson;
   }
 
-  static getRawSchedule(groupId) {
+  static async getRawSchedule(groupId) {
     let html = '';
     try {
-      const path = `../data/schedule${groupId}`;
-      delete require.cache[require.resolve(path)];
-      html = require(path);
+      const filePath = path.join(__dirname, `../data/schedule${groupId}.txt`);
+      html = await fs.readFile(filePath, 'utf-8');
     } catch (error) {
       logError(error);
     }

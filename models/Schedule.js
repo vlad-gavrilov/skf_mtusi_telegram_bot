@@ -1,4 +1,5 @@
-const { writeFileSync, accessSync, constants } = require('fs');
+const fs = require('fs/promises');
+const { constants } = require('fs');
 const path = require('path');
 const mysql = require('mysql2/promise');
 const TimeHelper = require('../helpers/TimeHelper');
@@ -53,13 +54,19 @@ class Schedule {
           outputString += 'Сейчас занятий нет';
         } else if (currentMinutes > bellsMinutes[0][0] && currentMinutes < bellsMinutes[0][3]) {
           // Сейчас идет первая пара
-          outputString += formatLesson(ParseHelper.parseScheduleLesson(groupId, currentDate, 1));
+          outputString += formatLesson(
+            await ParseHelper.parseScheduleLesson(groupId, currentDate, 1),
+          );
         } else if (currentMinutes > bellsMinutes[1][0] && currentMinutes < bellsMinutes[1][3]) {
           // Сейчас идет вторая пара
-          outputString += formatLesson(ParseHelper.parseScheduleLesson(groupId, currentDate, 2));
+          outputString += formatLesson(
+            await ParseHelper.parseScheduleLesson(groupId, currentDate, 2),
+          );
         } else if (currentMinutes > bellsMinutes[2][0] && currentMinutes < bellsMinutes[2][3]) {
           // Сейчас идет третья пара
-          outputString += formatLesson(ParseHelper.parseScheduleLesson(groupId, currentDate, 3));
+          outputString += formatLesson(
+            await ParseHelper.parseScheduleLesson(groupId, currentDate, 3),
+          );
         } else {
           outputString += 'Сейчас перемена';
         }
@@ -70,13 +77,19 @@ class Schedule {
             outputString += 'Сейчас занятий нет';
           } else if (currentMinutes > bellsMinutes[0][0] && currentMinutes < bellsMinutes[0][3]) {
             // Сейчас идет первая пара
-            outputString += formatLesson(ParseHelper.parseScheduleLesson(groupId, currentDate, 1));
+            outputString += formatLesson(
+              await ParseHelper.parseScheduleLesson(groupId, currentDate, 1),
+            );
           } else if (currentMinutes > bellsMinutes[1][0] && currentMinutes < bellsMinutes[1][3]) {
             // Сейчас идет вторая пара
-            outputString += formatLesson(ParseHelper.parseScheduleLesson(groupId, currentDate, 2));
+            outputString += formatLesson(
+              await ParseHelper.parseScheduleLesson(groupId, currentDate, 2),
+            );
           } else if (currentMinutes > bellsMinutes[2][0] && currentMinutes < bellsMinutes[2][3]) {
             // Сейчас идет третья пара
-            outputString += formatLesson(ParseHelper.parseScheduleLesson(groupId, currentDate, 3));
+            outputString += formatLesson(
+              await ParseHelper.parseScheduleLesson(groupId, currentDate, 3),
+            );
           } else {
             outputString += 'Сейчас перемена';
           }
@@ -85,13 +98,19 @@ class Schedule {
           outputString += 'Сейчас занятий нет';
         } else if (currentMinutes > bellsMinutes[3][0] && currentMinutes < bellsMinutes[3][3]) {
           // Сейчас идет четвертая пара
-          outputString += formatLesson(ParseHelper.parseScheduleLesson(groupId, currentDate, 4));
+          outputString += formatLesson(
+            await ParseHelper.parseScheduleLesson(groupId, currentDate, 4),
+          );
         } else if (currentMinutes > bellsMinutes[4][0] && currentMinutes < bellsMinutes[4][3]) {
           // Сейчас идет пятая пара
-          outputString += formatLesson(ParseHelper.parseScheduleLesson(groupId, currentDate, 5));
+          outputString += formatLesson(
+            await ParseHelper.parseScheduleLesson(groupId, currentDate, 5),
+          );
         } else if (currentMinutes > bellsMinutes[5][0] && currentMinutes < bellsMinutes[5][3]) {
           // Сейчас идет шестая пара
-          outputString += formatLesson(ParseHelper.parseScheduleLesson(groupId, currentDate, 6));
+          outputString += formatLesson(
+            await ParseHelper.parseScheduleLesson(groupId, currentDate, 6),
+          );
         } else {
           outputString += 'Сейчас перемена';
         }
@@ -123,7 +142,7 @@ class Schedule {
 
       outputString += `Группа: ${groupName}\n`;
 
-      const sched = ParseHelper.parseSchedule(groupId);
+      const sched = await ParseHelper.parseSchedule(groupId);
 
       if (sched[keyOfCurrentDate] !== undefined) {
         const todaysLessons = sched[keyOfCurrentDate];
@@ -167,7 +186,7 @@ class Schedule {
 
       outputString += `Группа: ${groupName}\n`;
 
-      const sched = ParseHelper.parseSchedule(groupId);
+      const sched = await ParseHelper.parseSchedule(groupId);
 
       if (sched[keyOfTomorrowDate] !== undefined) {
         const todaysLessons = sched[keyOfTomorrowDate];
@@ -224,7 +243,7 @@ class Schedule {
       const [rows] = await connection.query('SELECT group_of_user FROM Users WHERE id=?', userId);
       const groupId = rows[0].group_of_user;
       connection.end();
-      sched = ParseHelper.parseSchedule(groupId);
+      sched = await ParseHelper.parseSchedule(groupId);
     } catch (error) {
       logError(error);
     }
@@ -237,28 +256,29 @@ class Schedule {
       const groups = await getGroupIDs();
       groups.forEach(async (group) => {
         const groupId = group.group_id;
-        const filePath = path.join(__dirname, `../data/schedule${groupId}.js`);
-        try {
-          accessSync(filePath, constants.R_OK | constants.W_OK);
-        } catch (error) {
-          if (error.code !== 'ENOENT') throw error;
-          writeFileSync(filePath, Schedule.wrapRawSchedule(''));
-        }
+        const filePath = path.join(__dirname, `../data/schedule${groupId}.txt`);
         const newSchedule = await Request.getScheduleFromSite(groupId);
-        if (newSchedule.length > 1000) {
-          const oldSchedule = require(`../data/schedule${groupId}.js`);
-          if (newSchedule !== oldSchedule) {
-            writeFileSync(filePath, Schedule.wrapRawSchedule(newSchedule));
-          }
-        }
+
+        fs.access(filePath, constants.R_OK | constants.W_OK)
+          .then(async () => {
+            if (newSchedule.length > 1000) {
+              const oldSchedule = await fs.readFile(filePath, 'utf-8');
+              if (newSchedule !== oldSchedule) {
+                fs.writeFile(filePath, newSchedule);
+              }
+            }
+          })
+          .catch(async (error) => {
+            if (error.code !== 'ENOENT') {
+              logError(error);
+            }
+            const content = newSchedule.length > 1000 ? newSchedule : '';
+            fs.writeFile(filePath, content);
+          });
       });
     } catch (error) {
       logError(error);
     }
-  }
-
-  static wrapRawSchedule(rawSchedule) {
-    return `module.exports = "${rawSchedule}";`;
   }
 }
 

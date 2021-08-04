@@ -1,6 +1,7 @@
 const mysql = require('mysql2/promise');
 const DSN = require('../keys/database');
 const { logError } = require('./Logger');
+const allBells = require('../data/bells');
 
 class Bell {
   static async getBells(userId) {
@@ -12,7 +13,7 @@ class Bell {
       connection.end();
 
       const groupId = rows[0].group_of_user;
-      bells = require('../data/bells')[groupId];
+      bells = allBells[groupId];
 
       bells = bells.map((value) => [
         new Date(1970, 0, 1, +value[0], +value[1], 0, 0),
