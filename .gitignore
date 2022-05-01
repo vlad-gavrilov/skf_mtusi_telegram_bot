@@ -1,5 +1,4 @@
 node_modules/
-photos/
 data/schedule*
 todo
 .env

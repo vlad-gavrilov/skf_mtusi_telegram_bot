@@ -1,0 +1,28 @@
+version: '3.5'
+
+services:
+  bot:
+    build: ./
+    restart: on-failure
+    environment:
+      DB_HOST: ${DB_HOST:-db}
+      DB_NAME: ${DB_NAME:-skf_mtusi_bot}
+      DB_USER: ${DB_USER:-user}
+      DB_PASS: ${DB_PASS:-secret}
+      TG_TOKEN: ${TG_TOKEN}    
+  db:
+    image: mariadb:10.8
+    restart: on-failure
+    volumes:
+      - "./database:/docker-entrypoint-initdb.d"
+      - "dbdata:/var/lib/mysql"
+    environment:
+      MARIADB_DATABASE: ${DB_NAME:-skf_mtusi_bot}
+      MARIADB_USER: ${DB_USER:-user}
+      MARIADB_PASSWORD: ${DB_PASS:-secret}
+      MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASS:-rootsecret}
+      LANG: C.UTF-8
+      LC_ALL: C.UTF-8
+
+volumes:
+  dbdata:

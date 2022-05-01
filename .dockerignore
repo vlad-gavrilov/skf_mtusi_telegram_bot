@@ -1,0 +1,13 @@
+__tests__
+data/schedule*
+database
+images
+node_modules/
+.env_example
+.eslintrc.json
+.git
+.gitignore
+LICENSE
+README.md
+todo
+errors.txt
