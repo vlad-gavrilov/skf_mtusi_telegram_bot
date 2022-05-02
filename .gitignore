@@ -3,3 +3,4 @@ data/schedule*
 todo
 .env
 errors.txt
+.DS_Store
